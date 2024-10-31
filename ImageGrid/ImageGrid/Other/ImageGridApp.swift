@@ -11,7 +11,7 @@ import SwiftUI
 struct ImageGridApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainView()
         }
     }
 }

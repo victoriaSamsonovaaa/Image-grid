@@ -7,26 +7,24 @@
 
 import SwiftUI
 
-struct ContentView: View {
-    
-    @State private var searchQuery = ""
-    @State private var showAttentionalText = false
+struct MainView: View {
+    @StateObject var viewModel = MainViewViewModel()
     
     let columns = [GridItem(.adaptive(minimum: 150), spacing: 16)]
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
+         VStack(spacing: 0) {
                 HStack {
                     Image(systemName: "magnifyingglass")
                         .padding(.leading, 10)
                         .foregroundColor(.secondary)
-                    TextField("Search", text: $searchQuery)
+                    TextField("Search", text: $viewModel.searchQuery)
                         .font(.title3)
-                        .onChange(of: searchQuery) {
-                            showAttentionalText = true
+                        .onChange(of: viewModel.searchQuery) {
+                            viewModel.showAttentionalText = true
                         }
-                    if searchQuery != "" {
+                    if viewModel.searchQuery != "" {
                         Button(role: .cancel) {
                             remove()
                         } label: {
@@ -40,6 +38,7 @@ struct ContentView: View {
                 .frame(width: 370, height: 40)
                 .background(Color.gray.opacity(0.1))
                 .cornerRadius(10)
+                .padding(.top, 20)
                 
                 ScrollView {
                     LazyVGrid(columns: columns, spacing: 10) {
@@ -52,14 +51,32 @@ struct ContentView: View {
     }
     
     func remove() {
-        searchQuery = ""
+        viewModel.searchQuery = ""
     }
     
-    func searchImages() {
+    func searchImages(queryWord: String) async {
+        let apiKey = "p3toeuR3Aeo-lkkhfC8ctYIC5R05mQ5T3_zfp9szqBo"
+        let urlQuery = "https://api.unsplash.com/search/photos?page=1&per_page=20&query=\(queryWord)&client_id=\(apiKey)"
+        
+        guard let url = URL(string: urlQuery) else { return }
+        do {
+            var request = URLRequest(url: url)
+            let decoder = JSONDecoder()
+            let (data, _) = try await URLSession.shared.data(for: request)
+            if let decodedPhotos = try? decoder.decode([Result].self, from: data) {
+                for photo in decodedPhotos {
+                    
+                }
+            }
+        }
+        catch {
+            
+        }
+        
         
     }
 }
 
 #Preview {
-    ContentView()
+    MainView()
 }
